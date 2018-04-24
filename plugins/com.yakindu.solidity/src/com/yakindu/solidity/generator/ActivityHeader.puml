@@ -1,0 +1,41 @@
+@startuml
+scale 1200 width
+scale 2500 height
+
+skinparam backgroundColor White
+skinparam TitleFontSize 24
+
+skinparam activity {
+	StartColor #EDEDEA
+  	BarColor Silver 
+  	EndColor Silver
+  	BackgroundColor #EDEDEA
+  	'BackgroundColor AliceBlue
+  	BorderColor DarkGrey
+  	FontName Courier
+  	EndColor #D94D3A
+  	FontSize 14
+  	FontColor Black
+}
+skinparam arrow {
+	Color Black
+    FontSize 10
+    MessageAlign center
+}
+skinparam note {
+    BackgroundColor LightYellow
+    BorderColor Black
+    FontSize 10
+}
+skinparam activityDiamond {
+    BackgroundColor AliceBlue 
+    BorderColor DarkGrey
+    FontName Courier
+    FontSize 14
+}
+skinparam swimlane {
+  	swimlaneWidth 100
+  	BorderThickness 0
+  	TitleFontColor Black
+  	TitleFontSize 24
+}

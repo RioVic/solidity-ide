@@ -4,6 +4,6 @@
  <extension point="org.eclipse.xtext.builder.participant">
 		<participant
 			class="com.yakindu.solidity.compiler.SolidityCompilerExecutableExtensionFactory:com.yakindu.solidity.compiler.builder.SolidityBuilderParticipant"
-			fileExtensions="sol"/>
+			fileExtensions="sol,slb"/>
 	</extension>
 </plugin>
