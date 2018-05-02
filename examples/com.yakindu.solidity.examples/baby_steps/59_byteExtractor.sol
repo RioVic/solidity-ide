@@ -1,4 +1,4 @@
-contract ByteExtractor {
+contract ByteExtractor8 {
 
     address creator;
 

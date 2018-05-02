@@ -27,10 +27,14 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class SolidityGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+		
+		UnParser.ast_traverse(resource, fsa);
+		
+		/*fsa.generateFile('greetings.txt', 'People to greet: ' + 
+			resource.allContents
+				//.filter(Greeting)
+				//.map[name]
+				.join(', '))*/
 	}
+	
 }
