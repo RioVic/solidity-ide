@@ -14,6 +14,7 @@
  */
 package com.yakindu.solidity.compiler.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -48,7 +49,7 @@ import com.yakindu.solidity.ui.preferences.SolidityPreferencesFacade;
  *
  */
 public class SolidityCompilerBase implements ISolidityCompiler {
-	
+
 	@Inject
 	private SolidityPreferencesFacade prefs;
 
@@ -101,16 +102,13 @@ public class SolidityCompilerBase implements ISolidityCompiler {
 		try (OutputStreamWriter writer = new OutputStreamWriter(stream, Charset.forName("UTF-8"));) {
 			ParameterBuilder builder = new ParameterBuilder();
 			if (prefs.isWriteBINFile()) {
-				builder.addOutput(CompileOutputType.BIN.outputKey());
+				builder.addOutput(CompileOutputType.BIN.COMPILER_KEY);
 			}
 			if (prefs.isWriteABIFile()) {
-				builder.addOutput(CompileOutputType.ABI.outputKey());
-			}
-			if (prefs.isWriteASTFile()) {
-				builder.addOutput(CompileOutputType.AST.outputKey());
+				builder.addOutput(CompileOutputType.ABI.COMPILER_KEY);
 			}
 			if (prefs.isWriteASMFile()) {
-				builder.addOutput(CompileOutputType.ASM.outputKey());
+				builder.addOutput(CompileOutputType.ASM.COMPILER_KEY);
 			}
 			for (IResource resource : filesToCompile) {
 				if (resource instanceof IFile) {
@@ -118,6 +116,7 @@ public class SolidityCompilerBase implements ISolidityCompiler {
 					builder.addSource(file.getLocation().lastSegment(), new Source(file));
 				}
 			}
+			builder.addOutput(CompileOutputType.GAS.COMPILER_KEY);
 			writer.write(builder.buildJson());
 			writer.flush();
 		} catch (IOException e) {
@@ -139,8 +138,11 @@ public class SolidityCompilerBase implements ISolidityCompiler {
 		URL url = FileLocator.find(bundle, getPath(), null);
 		try {
 			URL fileURL = FileLocator.toFileURL(url);
+			File file = new File(fileURL.toURI());
+			if (!file.canExecute())
+				file.setExecutable(true);
 			return fileURL.getFile();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
 	}

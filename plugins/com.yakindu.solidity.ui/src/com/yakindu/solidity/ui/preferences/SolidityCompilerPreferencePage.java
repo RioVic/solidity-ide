@@ -64,8 +64,6 @@ public class SolidityCompilerPreferencePage extends FieldEditorPreferencePage im
 		addField(new BooleanFieldEditor(SolidityPreferences.COMPILER_ENABLED, "Enable solidity compiler", composite));
 		addField(new BooleanFieldEditor(SolidityPreferences.COMPILER_OUTPUT_BIN, "Enable solidity bin output",
 				composite));
-		addField(new BooleanFieldEditor(SolidityPreferences.COMPILER_OUTPUT_AST, "Enable solidity ast output",
-				composite));
 		addField(new BooleanFieldEditor(SolidityPreferences.COMPILER_OUTPUT_ASM, "Enable solidity asm output",
 				composite));
 		addField(new BooleanFieldEditor(SolidityPreferences.COMPILER_OUTPUT_ABI, "Enable solidity abi output",
@@ -104,7 +102,11 @@ public class SolidityCompilerPreferencePage extends FieldEditorPreferencePage im
 	}
 
 	private void validateFile() {
-		File file = new File(compilerPathFieldEditor.getStringValue());
+		String pathToSolc = compilerPathFieldEditor.getStringValue();
+		if (pathToSolc == null || pathToSolc.isEmpty()) {
+			return;
+		}
+		File file = new File(pathToSolc);
 		if (file.exists() && file.isFile() && file.canExecute()
 				&& (file.getName().contains("solc") || file.getName().contains("solcjs"))) {
 			if (file.getName().contains("solcjs")) {

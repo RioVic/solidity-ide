@@ -57,7 +57,7 @@ import com.yakindu.solidity.solidity.SourceUnit;
 public class SolidityMarkerCreator extends MarkerCreator {
 
 	final Pattern issueLength = Pattern.compile("\\^-*\\^");
-	final Pattern issueContractNameLine= Pattern.compile("contract \\w*");
+	final Pattern issueContractNameLine = Pattern.compile("contract \\w*");
 
 	@Inject
 	private EObjectAtOffsetHelper offsetHelper;
@@ -66,9 +66,6 @@ public class SolidityMarkerCreator extends MarkerCreator {
 	public final static String NORMAL_VALIDATION = "org.eclipse.xtext.ui.check.normal"; //$NON-NLS-1$
 
 	void createMarkers(final CompilerOutput compilerOutput, final Set<IResource> filesToCompile) {
-		if (compilerOutput == null) {
-			return;
-		}
 		createErrorMarkers(compilerOutput.getErrors(), filesToCompile);
 		createInfoMarkers(compilerOutput.getContracts(), filesToCompile);
 	}
@@ -105,7 +102,7 @@ public class SolidityMarkerCreator extends MarkerCreator {
 	}
 
 	private String prettyPrint(GasEstimates gasEstimates) {
-		if(gasEstimates == null) {
+		if (gasEstimates == null) {
 			return null;
 		}
 		StringBuilder builder = new StringBuilder();
@@ -143,12 +140,12 @@ public class SolidityMarkerCreator extends MarkerCreator {
 
 	private SolcIssue createSolcIssue(CompileError error, Set<IResource> filesToCompile) {
 		String[] parts = error.getFormattedMessage().split(":");
-		String fileName = partAtIndex(parts, 0);
+		String fileName = error.getSourceLocation().getFile();
 		IFile errorFile = findFileForName(filesToCompile, fileName);
 		int lineNumber = extractNumber(partAtIndex(parts, 1));
 		int columnNumber = extractNumber(partAtIndex(parts, 2));
 		Map<Integer, String> fileContent = getFileContent(errorFile);
-		int offset = calculateOffset(fileContent, columnNumber, lineNumber);
+		int offset = error.getSourceLocation().getStart();
 		int length = calculateIssueLength(fileContent.get(lineNumber), partAtIndex(parts, 4));
 
 		Severity severity = calculateSeverity(error.getSeverity());
@@ -163,7 +160,9 @@ public class SolidityMarkerCreator extends MarkerCreator {
 		solcIssue.setLength(length);
 		solcIssue.setErrorCode(createErrorCodeFromMessage(severity, message));
 		EObject element = getEObject(errorFile, offset);
-		solcIssue.setUriToProblem(EcoreUtil.getURI(element));
+		if (element != null) {
+			solcIssue.setUriToProblem(EcoreUtil.getURI(element));
+		}
 		return solcIssue;
 	}
 
@@ -187,14 +186,14 @@ public class SolidityMarkerCreator extends MarkerCreator {
 
 	private IFile findFileForName(Set<IResource> filesToCompile, String fileName) {
 		IFile errorFile = filesToCompile.stream().filter(file -> file.getName().equals(fileName))
-				.map(file -> (IFile) file).findFirst().orElse((IFile)filesToCompile.stream().findFirst().orElse(null));
+				.map(file -> (IFile) file).findFirst().orElse((IFile) filesToCompile.stream().findFirst().orElse(null));
 		return errorFile;
 	}
 
 	private EObject getEObject(IFile errorFile, int offset) {
 		Resource resource = new ResourceSetImpl()
 				.getResource(URI.createPlatformResourceURI(errorFile.getFullPath().toString(), true), true);
-		if(offset == 0){
+		if (offset == 0) {
 			EObject object = resource.getContents().get(0);
 			return EcoreUtil2.getAllContentsOfType(object, SourceUnit.class).get(0);
 		}
@@ -203,12 +202,12 @@ public class SolidityMarkerCreator extends MarkerCreator {
 
 	private String createErrorCodeFromMessage(Severity severity, String message) {
 		switch (severity) {
-			case ERROR :
-				return "error";
-			case WARNING :
-				return SolidityWarning.getCodeForMessage(message);
-			default :
-				return "info";
+		case ERROR:
+			return "error";
+		case WARNING:
+			return SolidityWarning.getCodeForMessage(message);
+		default:
+			return "info";
 		}
 	}
 
@@ -228,15 +227,6 @@ public class SolidityMarkerCreator extends MarkerCreator {
 			e.printStackTrace();
 		}
 		return content;
-	}
-
-	private int calculateOffset(Map<Integer, String> fileContent, int columnNumber, int lineNumber) {
-		int start = columnNumber - 1;
-		for (int i = 1; i < lineNumber; i++) {
-			String line = fileContent.get(i);
-			start += line.length();
-		}
-		return (start > 0)? start : 0;
 	}
 
 	private int calculateIssueLength(String errorLine, String issueDetails) {
@@ -264,12 +254,12 @@ public class SolidityMarkerCreator extends MarkerCreator {
 
 	private Severity calculateSeverity(String severety) {
 		switch (severety) {
-			case "warning" :
-				return Severity.WARNING;
-			case "error" :
-				return Severity.ERROR;
-			default :
-				return Severity.INFO;
+		case "warning":
+			return Severity.WARNING;
+		case "error":
+			return Severity.ERROR;
+		default:
+			return Severity.INFO;
 		}
 	}
 }
